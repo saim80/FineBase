@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "FineBase",
+	"Description": "Provides a set of foundational functionalities to build other plugins and games.",
+	"Category": "Other",
+	"CreatedBy": "Pururum LLC",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "FineBase",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
