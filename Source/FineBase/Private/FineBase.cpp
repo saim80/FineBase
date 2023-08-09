@@ -18,3 +18,4 @@ void FFineBaseModule::ShutdownModule()
 #undef LOCTEXT_NAMESPACE
 	
 IMPLEMENT_MODULE(FFineBaseModule, FineBase)
+DEFINE_LOG_CATEGORY(LogFineBase)
