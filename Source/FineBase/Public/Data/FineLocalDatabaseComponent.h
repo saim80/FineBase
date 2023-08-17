@@ -32,7 +32,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="FineBase")
 	TArray<FFineDatabaseRecord> GetRecords(const FString& Entity, bool& bSuccess) const;
-	
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="FineBase")
 	TArray<FFineDatabaseRecord> FilterRecords(const FString& Entity, const FString& WhereClause, bool& bSuccess) const;
 
@@ -47,6 +47,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="FineBase")
 	bool DeleteRecords(const FString& Entity, const FString& WhereClause);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

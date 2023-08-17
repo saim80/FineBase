@@ -9,7 +9,6 @@
 class UFineLocalDatabaseComponent;
 struct FFineDisplayData;
 struct FFineActorData;
-struct FFineCharacterData;
 /**
  * 
  */
@@ -18,8 +17,6 @@ class FINEBASE_API UFineDataFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	static FFineCharacterData GetCharacterData(const FString& CharacterName, UFineLocalDatabaseComponent* LocalDatabase);
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	static FFineActorData GetActorData(const FString& ActorName, UFineLocalDatabaseComponent* LocalDatabase);
 	UFUNCTION(BlueprintCallable, BlueprintPure)
