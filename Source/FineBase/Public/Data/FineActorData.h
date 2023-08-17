@@ -17,9 +17,6 @@ struct FINEBASE_API FFineActorData : public FFineDisplayData
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FineActorInfo")
 	int32 Health = 1;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FineActorInfo")
-	int32 DefenseRating = 0;
-
 	virtual void UpdateFromRecord(const FFineDatabaseRecord& Record) override;
 	virtual FFineDatabaseRecord ToRecord() const override;
 };
