@@ -27,6 +27,9 @@ public class FineBase : ModuleRules
 			{
 				"Core", 
 				"Engine",
+				"SQLiteCore",
+				"SQLiteSupport",
+				"DatabaseSupport"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

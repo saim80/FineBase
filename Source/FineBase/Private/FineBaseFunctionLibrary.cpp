@@ -3,6 +3,7 @@
 
 #include "FineBaseFunctionLibrary.h"
 
+
 bool UFineBaseFunctionLibrary::CanQuitGame()
 {
 	// if the platform is mobile, console, or VR, return false.

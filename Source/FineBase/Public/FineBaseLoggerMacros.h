@@ -7,7 +7,7 @@
 #define __PRETTY_FUNCTION__ __FUNCSIG__
 #endif
 
-#define FINEBASE_PRINT(Category, Verbosity, Format, ...) UE_LOG(Category, Verbosity, TEXT("[%s][%s(%i)]:%s"), __TIMESTAMP__, __PRETTY_FUNCTION__, __LINE__, *FString::Printf(TEXT(Format), ##__VA_ARGS__))
+#define FINEBASE_PRINT(Category, Verbosity, Format, ...) UE_LOG(Category, Verbosity, TEXT("<%s(%i)> %s"), *FString(__PRETTY_FUNCTION__), __LINE__, *FString::Printf(TEXT(Format), ##__VA_ARGS__))
 
 #if (UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT)
 

@@ -6,6 +6,11 @@
 #include "UObject/Object.h"
 #include "FineBaseFunctionLibrary.generated.h"
 
+class FSQLiteResultSet;
+class FSQLiteDatabaseConnection;
+struct FFineCharacterData;
+struct FFineActorData;
+struct FFineDisplayData;
 /**
  * 
  */
@@ -20,4 +25,5 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="FineBase")
 	static double GetTimeSecondsSince1970(const FDateTime& DateTime);
+
 };
