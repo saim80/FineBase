@@ -29,6 +29,6 @@ struct FINEBASE_API FFineDisplayData
 	TSoftObjectPtr<UTexture2D> Image;
 
 	virtual void UpdateFromRecord(const FFineDatabaseRecord& Record);
-
 	virtual FFineDatabaseRecord ToRecord() const;
+	static FFineDisplayData FromRecord(const FFineDatabaseRecord& Record);
 };

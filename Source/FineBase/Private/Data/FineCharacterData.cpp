@@ -20,3 +20,10 @@ FFineDatabaseRecord FFineCharacterData::ToRecord() const
 
 	return Record;
 }
+
+FFineCharacterData FFineCharacterData::FromRecord(const FFineDatabaseRecord& Record)
+{
+	FFineCharacterData Data;
+	Data.UpdateFromRecord(Record);
+	return Data;
+}

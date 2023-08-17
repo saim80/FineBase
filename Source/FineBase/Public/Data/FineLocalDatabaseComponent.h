@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FineDatabaseRecord.h"
-#include "SQLiteDatabaseConnection.h"
-#include "SQLiteResultSet.h"
 #include "GameFramework/Info.h"
 #include "FineLocalDatabaseComponent.generated.h"
 
 class FSQLiteResultSet;
+class FDataBaseRecordSet;
+class FSQLiteDatabaseConnection;
+struct FFineDatabaseRecord;
 struct FFineCharacterData;
 struct FFineActorData;
 struct FFineDisplayData;
@@ -27,57 +27,26 @@ public:
 	UFineLocalDatabaseComponent();
 	FString GetDatabaseConnectionString() const;
 
-	FDataBaseRecordSet* FetchRecord(const FString& Entity, const FName& Name);
-	FDataBaseRecordSet* FetchList(const FString& Entity);
-
-	template <typename T>
-	TArray<T> FetchModelList(const FString& Entity)
-	{
-		const auto ResultSet = FetchList(Entity);
-		if (ResultSet == nullptr)
-		{
-			return {};
-		}
-		TArray<T> OutList;
-		for (FSQLiteResultSet::TIterator It(ResultSet); It; ++It)
-		{
-			T Data;
-			Data.UpdateFromRecord(FFineDatabaseRecord::FromResultSet(static_cast<const FSQLiteResultSet*>(*It)));
-			OutList.Add(Data);
-		}
-		return OutList;
-	}
-
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category="FineBase")
-	FFineDisplayData GetDisplayDataByName(const FName Name, bool& bSuccess);
-
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category="FineBase")
-	FFineActorData GetActorDataByName(const FName Name, bool& bSuccess);
-
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category="FineBase")
-	FFineCharacterData GetCharacterDataByName(const FName Name,
-	                                          bool& bSuccess);
-
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="FineBase")
 	FFineDatabaseRecord GetRecordByName(const FString Entity, const FName Name, bool& bSuccess);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="FineBase")
-	TArray<FFineDisplayData> GetDisplayDataList();
-
-	UFUNCTION(BlueprintCallable, BlueprintCallable, Category="FineBase")
-	TArray<FFineActorData> GetActorDataList();
-
-	UFUNCTION(BlueprintCallable, BlueprintCallable, Category="FineBase")
-	TArray<FFineCharacterData> GetCharacterDataList();
+	TArray<FFineDatabaseRecord> GetRecords(const FString& Entity, bool& bSuccess) const;
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="FineBase")
+	TArray<FFineDatabaseRecord> FilterRecords(const FString& Entity, const FString& WhereClause, bool& bSuccess) const;
 
 	UFUNCTION(BlueprintCallable, Category="FineBase")
-	void UpdateRecord(const FString& Entity, const FString& Name, const FFineDatabaseRecord& Record);
+	bool UpdateRecordByName(const FString& Entity, const FString& Name, const FFineDatabaseRecord& Record);
 
 	UFUNCTION(BlueprintCallable, Category="FineBase")
-	void CreateRecord(const FString& Entity, const FString& Name, const FFineDatabaseRecord& Record);
+	bool CreateRecord(const FString& Entity, const FString& Name, const FFineDatabaseRecord& Record);
 
 	UFUNCTION(BlueprintCallable, Category="FineBase")
-	void DeleteRecords(const FString& Entity, const FString& Name);
+	bool DeleteRecordByName(const FString& Entity, const FString& Name);
+
+	UFUNCTION(BlueprintCallable, Category="FineBase")
+	bool DeleteRecords(const FString& Entity, const FString& WhereClause);
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -86,8 +55,9 @@ protected:
 private:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "FineBase", meta = (AllowPrivateAccess = "true"))
 	FString DatabasePath;
-	FSQLiteDatabaseConnection Connection;
+	TSharedPtr<FSQLiteDatabaseConnection> Connection;
 
 	bool OpenConnection();
-	FDataBaseRecordSet* ExecuteDatabaseQuery(const FString& Query);
+	void CloseConnection();
+	TArray<FFineDatabaseRecord> ExecuteQuery(const FString& Query, bool& bSuccess) const;
 };

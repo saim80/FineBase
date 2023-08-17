@@ -33,26 +33,13 @@ FString UFineLocalDatabaseComponent::GetDatabaseConnectionString() const
 void UFineLocalDatabaseComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
 	OpenConnection();
 }
 
 void UFineLocalDatabaseComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	Connection.Close();
+	CloseConnection();
 	Super::EndPlay(EndPlayReason);
-}
-
-FDataBaseRecordSet* UFineLocalDatabaseComponent::FetchRecord(const FString& Entity, const FName& Name)
-{
-	const FString Query = FString::Printf(TEXT("SELECT * FROM %s WHERE Name = '%s';"), *Entity, *Name.ToString());
-	return ExecuteDatabaseQuery(Query);
-}
-
-FDataBaseRecordSet* UFineLocalDatabaseComponent::FetchList(const FString& Entity)
-{
-	const FString Query = FString::Printf(TEXT("SELECT * FROM %s;"), *Entity);
-	return ExecuteDatabaseQuery(Query);
 }
 
 bool UFineLocalDatabaseComponent::OpenConnection()
@@ -60,7 +47,11 @@ bool UFineLocalDatabaseComponent::OpenConnection()
 	const auto FilePath = GetDatabaseConnectionString();
 	FB_LOG("Opening database at %s", *FilePath);
 
-	if (!Connection.Open(*FilePath, TEXT(""), TEXT("")))
+	CloseConnection();
+
+	Connection = MakeShared<FSQLiteDatabaseConnection>();
+
+	if (!Connection->Open(*FilePath, TEXT(""), TEXT("")))
 	{
 		FB_ERROR("Failed to open database.");
 		return false;
@@ -69,21 +60,32 @@ bool UFineLocalDatabaseComponent::OpenConnection()
 	return true;
 }
 
-FDataBaseRecordSet* UFineLocalDatabaseComponent::ExecuteDatabaseQuery(const FString& Query)
+void UFineLocalDatabaseComponent::CloseConnection()
+{
+	if (Connection.IsValid())
+	{
+		Connection->Close();
+		Connection = nullptr;
+	}
+}
+
+TArray<FFineDatabaseRecord> UFineLocalDatabaseComponent::ExecuteQuery(
+	const FString& Query, bool& bSuccess) const
 {
 	// Execute the query and get the result set.
 	FSQLiteResultSet* ResultSet = nullptr;
-	if (!Connection.Execute(*Query, ResultSet))
+	if (!Connection->Execute(*Query, ResultSet))
 	{
-		if (!Connection.GetLastError().IsEmpty())
+		if (!Connection->GetLastError().IsEmpty())
 		{
-			FB_ERROR("SQLite query failed: %s %s", *Query, *Connection.GetLastError());
+			FB_ERROR("SQLite query failed: %s %s", *Query, *Connection->GetLastError());
 		}
 		else
 		{
 			FB_ERROR("SQLite query failed: %s", *Query);
 		}
-		return nullptr;
+		bSuccess = false;
+		return {};
 	}
 #if WITH_EDITOR
 	FB_LOG("SQLite query succeeded: %s", *Query);
@@ -123,78 +125,48 @@ FDataBaseRecordSet* UFineLocalDatabaseComponent::ExecuteDatabaseQuery(const FStr
 	}
 #endif
 
-	const FSQLiteResultSet::TIterator It(ResultSet);
-	return *It;
-}
-
-FFineDisplayData UFineLocalDatabaseComponent::GetDisplayDataByName(const FName Name, bool& bSuccess)
-{
-	FFineDisplayData OutData;
-	const auto Record = GetRecordByName(TEXT("Display"), Name, bSuccess);
-	if (!bSuccess)
+	bSuccess = true;
+	// Iterate the result set and make FFineDatabaseRecord for each row.
+	TArray<FFineDatabaseRecord> Records;
+	for (FSQLiteResultSet::TIterator It(ResultSet); It; ++It)
 	{
-		return OutData;
+		const auto Row = *It;
+		Records.Add(FFineDatabaseRecord::FromResultSet(Row));
 	}
-	OutData.UpdateFromRecord(Record);
-	return OutData;
-}
-
-FFineActorData UFineLocalDatabaseComponent::GetActorDataByName(const FName Name, bool& bSuccess)
-{
-	FFineActorData OutData;
-	const auto Record = GetRecordByName(TEXT("Actor"), Name, bSuccess);
-	if (!bSuccess)
-	{
-		return OutData;
-	}
-	OutData.UpdateFromRecord(Record);
-	return OutData;
-}
-
-FFineCharacterData UFineLocalDatabaseComponent::GetCharacterDataByName(const FName Name, bool& bSuccess)
-{
-	FFineCharacterData OutData;
-	const auto Record = GetRecordByName(TEXT("Character"), Name, bSuccess);
-	if (!bSuccess)
-	{
-		return OutData;
-	}
-	OutData.UpdateFromRecord(Record);
-	return OutData;
+	delete ResultSet;
+	return Records;
 }
 
 FFineDatabaseRecord UFineLocalDatabaseComponent::GetRecordByName(const FString Entity, const FName Name,
                                                                  bool& bSuccess)
 {
-	const auto ResultSet = FetchRecord(Entity, Name);
-	if (ResultSet == nullptr)
+	const FString Query = FString::Printf(TEXT("SELECT * FROM %s WHERE Name = '%s';"), *Entity, *Name.ToString());
+	const auto Records = ExecuteQuery(Query, bSuccess);
+	if (Records.IsEmpty())
 	{
-		bSuccess = false;
 		return {};
 	}
-	bSuccess = true;
-	const auto Record = FFineDatabaseRecord::FromResultSet(ResultSet);
-	delete ResultSet;
-	return Record;
+	return Records[0];
 }
 
-
-TArray<FFineDisplayData> UFineLocalDatabaseComponent::GetDisplayDataList()
+TArray<FFineDatabaseRecord> UFineLocalDatabaseComponent::GetRecords(const FString& Entity, bool& bSuccess) const
 {
-	return FetchModelList<FFineDisplayData>(TEXT("Display"));
+	// Build the query.
+	const FString Query = FString::Printf(TEXT("SELECT * FROM %s;"), *Entity);
+	// Execute the query and get the result set.
+	return ExecuteQuery(Query, bSuccess);
 }
 
-TArray<FFineActorData> UFineLocalDatabaseComponent::GetActorDataList()
+TArray<FFineDatabaseRecord> UFineLocalDatabaseComponent::FilterRecords(const FString& Entity,
+                                                                       const FString& WhereClause, bool& bSuccess) const
 {
-	return FetchModelList<FFineActorData>(TEXT("Actor"));
+	// Build the query.
+	const FString Query = FString::Printf(TEXT("SELECT * FROM %s WHERE %s;"), *Entity, *WhereClause);
+	// Execute the query and get the result set.
+	return ExecuteQuery(Query, bSuccess);
 }
 
-TArray<FFineCharacterData> UFineLocalDatabaseComponent::GetCharacterDataList()
-{
-	return FetchModelList<FFineCharacterData>(TEXT("Character"));
-}
-
-void UFineLocalDatabaseComponent::UpdateRecord(const FString& Entity, const FString& Name,
+bool UFineLocalDatabaseComponent::UpdateRecordByName(const FString& Entity, const FString& Name,
                                                const FFineDatabaseRecord& Record)
 {
 	// Create SQL query for update row for the given entity and record.
@@ -226,18 +198,18 @@ void UFineLocalDatabaseComponent::UpdateRecord(const FString& Entity, const FStr
 	Query += FString::Printf(TEXT(" WHERE Name = '%s'"), *Name);
 	// Add semicolon to end the statement.
 	Query += TEXT(";");
+	bool bSuccess;
 	// Execute the query.
-	const auto Result = ExecuteDatabaseQuery(Query);
+	const auto Result = ExecuteQuery(Query, bSuccess);
 	// Check record count to see if the update was successful.
-	if (Result != nullptr)
+	if (bSuccess)
 	{
 		FB_VERBOSE("%s Updated.", *Name);
 	}
-
-	delete Result;
+	return bSuccess;
 }
 
-void UFineLocalDatabaseComponent::CreateRecord(const FString& Entity, const FString& Name,
+bool UFineLocalDatabaseComponent::CreateRecord(const FString& Entity, const FString& Name,
                                                const FFineDatabaseRecord& Record)
 {
 	// Create SQL query for insert row for the given entity and record.
@@ -297,27 +269,36 @@ void UFineLocalDatabaseComponent::CreateRecord(const FString& Entity, const FStr
 	// Add semicolon to end the statement.
 	Query += TEXT(");");
 
+	bool bSuccess;
 	// Execute the query.
-	const auto Result = ExecuteDatabaseQuery(Query);
+	const auto Result = ExecuteQuery(Query, bSuccess);
 	// Check record count to see if the update was successful.
-	if (Result != nullptr)
+	if (bSuccess)
 	{
 		FB_VERBOSE("%s Created.", *Name);
 	}
 
-	delete Result;
+	return bSuccess;
 }
 
-void UFineLocalDatabaseComponent::DeleteRecords(const FString& Entity, const FString& Name)
+bool UFineLocalDatabaseComponent::DeleteRecordByName(const FString& Entity, const FString& Name)
+{
+	// Create where clause
+	const FString WhereClause = FString::Printf(TEXT("Name = '%s'"), *Name);
+	return DeleteRecords(Entity, WhereClause);
+}
+
+bool UFineLocalDatabaseComponent::DeleteRecords(const FString& Entity, const FString& WhereClause)
 {
 	// Create SQL query for delete row for the given entity and record.
-	const FString Query = FString::Printf(TEXT("DELETE FROM %s WHERE Name = '%s';"), *Entity, *Name);
+	const FString Query = FString::Printf(TEXT("DELETE FROM %s WHERE %s;"), *Entity, *WhereClause);
+	bool bSuccess;
 	// Execute the query.
-	const auto Result = ExecuteDatabaseQuery(Query);
+	const auto Result = ExecuteQuery(Query, bSuccess);
 	// Check record count to see if the update was successful.
-	if (Result != nullptr)
+	if (bSuccess)
 	{
-		FB_VERBOSE("%s Deleted.", *Name);
+		FB_VERBOSE("Records Deleted.");
 	}
-	delete Result;
+	return bSuccess;
 }

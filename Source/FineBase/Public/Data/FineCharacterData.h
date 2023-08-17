@@ -19,4 +19,5 @@ struct FINEBASE_API FFineCharacterData : public FFineActorData
 
 	virtual void UpdateFromRecord(const FFineDatabaseRecord& Record) override;
 	virtual FFineDatabaseRecord ToRecord() const override;
+	static FFineCharacterData FromRecord(const FFineDatabaseRecord& Record);
 };

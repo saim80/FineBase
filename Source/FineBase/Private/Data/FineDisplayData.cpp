@@ -25,3 +25,10 @@ FFineDatabaseRecord FFineDisplayData::ToRecord() const
 
 	return Record;
 }
+
+FFineDisplayData FFineDisplayData::FromRecord(const FFineDatabaseRecord& Record)
+{
+	FFineDisplayData Data;
+	Data.UpdateFromRecord(Record);
+	return Data;
+}
