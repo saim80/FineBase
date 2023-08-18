@@ -5,10 +5,7 @@
 
 #include "FineBase.h"
 #include "SQLiteDatabaseConnection.h"
-#include "Data/FineActorData.h"
-#include "Data/FineCharacterData.h"
 #include "Data/FineDatabaseRecord.h"
-#include "Data/FineDisplayData.h"
 
 UFineLocalDatabaseComponent::UFineLocalDatabaseComponent(): Super()
 {
@@ -28,12 +25,6 @@ FString UFineLocalDatabaseComponent::GetDatabaseConnectionString() const
 	const FString FilePath = FPaths::Combine(GameDir, StrippedPathToDB);
 
 	return FilePath;
-}
-
-void UFineLocalDatabaseComponent::BeginPlay()
-{
-	Super::BeginPlay();
-	OpenConnection();
 }
 
 void UFineLocalDatabaseComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -69,9 +60,17 @@ void UFineLocalDatabaseComponent::CloseConnection()
 	}
 }
 
-TArray<FFineDatabaseRecord> UFineLocalDatabaseComponent::ExecuteQuery(
-	const FString& Query, bool& bSuccess) const
+TArray<FFineDatabaseRecord> UFineLocalDatabaseComponent::ExecuteQuery(const FString& Query, bool& bSuccess)
 {
+	// Open the connection if it is not opened.
+	if (!Connection.IsValid())
+	{
+		if (!OpenConnection())
+		{
+			bSuccess = false;
+			return {};
+		}
+	}
 	// Execute the query and get the result set.
 	FSQLiteResultSet* ResultSet = nullptr;
 	if (!Connection->Execute(*Query, ResultSet))
@@ -149,7 +148,7 @@ FFineDatabaseRecord UFineLocalDatabaseComponent::GetRecordByName(const FString E
 	return Records[0];
 }
 
-TArray<FFineDatabaseRecord> UFineLocalDatabaseComponent::GetRecords(const FString& Entity, bool& bSuccess) const
+TArray<FFineDatabaseRecord> UFineLocalDatabaseComponent::GetRecords(const FString& Entity, bool& bSuccess)
 {
 	// Build the query.
 	const FString Query = FString::Printf(TEXT("SELECT * FROM %s;"), *Entity);
@@ -158,7 +157,7 @@ TArray<FFineDatabaseRecord> UFineLocalDatabaseComponent::GetRecords(const FStrin
 }
 
 TArray<FFineDatabaseRecord> UFineLocalDatabaseComponent::FilterRecords(const FString& Entity,
-                                                                       const FString& WhereClause, bool& bSuccess) const
+                                                                       const FString& WhereClause, bool& bSuccess)
 {
 	// Build the query.
 	const FString Query = FString::Printf(TEXT("SELECT * FROM %s WHERE %s;"), *Entity, *WhereClause);
@@ -167,7 +166,7 @@ TArray<FFineDatabaseRecord> UFineLocalDatabaseComponent::FilterRecords(const FSt
 }
 
 bool UFineLocalDatabaseComponent::UpdateRecordByName(const FString& Entity, const FString& Name,
-                                               const FFineDatabaseRecord& Record)
+                                                     const FFineDatabaseRecord& Record)
 {
 	// Create SQL query for update row for the given entity and record.
 	FString Query = FString::Printf(TEXT("UPDATE %s SET "), *Entity);

@@ -31,10 +31,10 @@ public:
 	FFineDatabaseRecord GetRecordByName(const FString Entity, const FName Name, bool& bSuccess);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="FineBase")
-	TArray<FFineDatabaseRecord> GetRecords(const FString& Entity, bool& bSuccess) const;
+	TArray<FFineDatabaseRecord> GetRecords(const FString& Entity, bool& bSuccess);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="FineBase")
-	TArray<FFineDatabaseRecord> FilterRecords(const FString& Entity, const FString& WhereClause, bool& bSuccess) const;
+	TArray<FFineDatabaseRecord> FilterRecords(const FString& Entity, const FString& WhereClause, bool& bSuccess);
 
 	UFUNCTION(BlueprintCallable, Category="FineBase")
 	bool UpdateRecordByName(const FString& Entity, const FString& Name, const FFineDatabaseRecord& Record);
@@ -49,8 +49,6 @@ public:
 	bool DeleteRecords(const FString& Entity, const FString& WhereClause);
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 private:
@@ -60,5 +58,5 @@ private:
 
 	bool OpenConnection();
 	void CloseConnection();
-	TArray<FFineDatabaseRecord> ExecuteQuery(const FString& Query, bool& bSuccess) const;
+	TArray<FFineDatabaseRecord> ExecuteQuery(const FString& Query, bool& bSuccess);
 };
