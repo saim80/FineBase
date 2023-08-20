@@ -11,7 +11,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnFlagUpdated, UFineCountedFlag*, 
 /**
  * A flag that controlled by counter. Counter <= 0 means the flag is off. Counter > 0 means the flag is on.
  */
-UCLASS(BlueprintType)
+UCLASS(BlueprintType, Blueprintable, meta = (BlueprintSpawnableComponent))
 class FINEBASE_API UFineCountedFlag : public UActorComponent
 {
 	GENERATED_BODY()
@@ -20,7 +20,7 @@ public:
 	/// Sets the flag value. If the new flag is on, counter is incremented.
 	/// If the new flag is off, counter is decremented.
 	UFUNCTION(BlueprintCallable)
-	void SetEnabled(const bool& NewFlag);
+	void SetEnabled(const bool NewFlag);
 
 	/// Determines if the flag is on.
 	UFUNCTION(BlueprintCallable, BlueprintPure)
@@ -34,7 +34,7 @@ protected:
 	/// Called when the flag value is updated.
 	UFUNCTION(BlueprintNativeEvent, meta = (AllowPrivateAccess = true))
 	void OnFlagValueUpdated();
-	void OnFlagValueUpdated_Implementation();
+	virtual void OnFlagValueUpdated_Implementation();
 
 private:
 	int32 Counter;

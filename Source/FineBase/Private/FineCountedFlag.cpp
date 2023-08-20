@@ -11,7 +11,7 @@ void UFineCountedFlag::OnFlagValueUpdated_Implementation()
 	OnFlagUpdated.Broadcast(this, IsEnabled());
 }
 
-void UFineCountedFlag::SetEnabled(const bool& NewFlag)
+void UFineCountedFlag::SetEnabled(const bool NewFlag)
 {
 	// if the new flag is different from the current flag
 	if (NewFlag != IsEnabled())

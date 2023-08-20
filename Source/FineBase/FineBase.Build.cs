@@ -29,7 +29,7 @@ public class FineBase : ModuleRules
 				"Engine",
 				"SQLiteCore",
 				"SQLiteSupport",
-				"DatabaseSupport"
+				"DatabaseSupport",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -41,7 +41,8 @@ public class FineBase : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"Slate",
-				"SlateCore",
+				"SlateCore", 
+				"Paper2D", 
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
