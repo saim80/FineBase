@@ -35,7 +35,7 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnSaveGameSaved OnSaveGameSaved;
 
-	UFUNCTION(BlueprintCallable, Category="FineBase")
+	UFUNCTION(BlueprintCallable, CallInEditor, Category="FineBase")
 	void ResetProgress();
 	UFUNCTION(BlueprintCallable, Category="FineBase")
 	void LoadProgress();

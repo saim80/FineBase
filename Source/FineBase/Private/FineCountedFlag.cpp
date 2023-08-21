@@ -7,26 +7,27 @@
 
 void UFineCountedFlag::OnFlagValueUpdated_Implementation()
 {
-	FB_VERBOSE("Flag {0} updated to {1}", *Name.ToString(), IsEnabled());
+	FB_LOG("Flag %s updated to %s", *Name.ToString(), IsEnabled() ? TEXT("enabled") : TEXT("disabled"));
 	OnFlagUpdated.Broadcast(this, IsEnabled());
 }
 
 void UFineCountedFlag::SetEnabled(const bool NewFlag)
 {
 	// if the new flag is different from the current flag
-	if (NewFlag != IsEnabled())
+	const auto OldCounter = Counter;
+	// if the new flag is on
+	if (NewFlag)
 	{
-		// if the new flag is on
-		if (NewFlag)
-		{
-			// increment the counter
-			Counter++;
-		}
-		else
-		{
-			// decrement the counter
-			Counter--;
-		}
+		// increment the counter
+		Counter++;
+	}
+	else
+	{
+		// decrement the counter
+		Counter--;
+	}
+	if (OldCounter <= 0 && Counter > 0 || OldCounter > 0 && Counter <= 0)
+	{
 		// call the event
 		OnFlagValueUpdated();
 	}
