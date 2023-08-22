@@ -7,7 +7,8 @@
 
 void UFineCountedFlag::OnFlagValueUpdated_Implementation()
 {
-	FB_LOG("Flag %s updated to %s", *Name.ToString(), IsEnabled() ? TEXT("enabled") : TEXT("disabled"));
+	FB_LOG("Flag %s updated to %s: Counter: %i", *FlagName.ToString(), IsEnabled() ? TEXT("enabled") : TEXT("disabled"),
+	       Counter);
 	OnFlagUpdated.Broadcast(this, IsEnabled());
 }
 

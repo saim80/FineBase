@@ -54,6 +54,8 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="FineBase")
 	bool IsLoaded();
 
+	FORCEINLINE const int32& GetUserIndex() const { return UserIndex; }
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;

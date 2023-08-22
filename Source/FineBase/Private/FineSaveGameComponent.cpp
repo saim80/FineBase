@@ -3,6 +3,7 @@
 
 #include "FineSaveGameComponent.h"
 
+#include "FineBase.h"
 #include "FineSaveGameInterface.h"
 #include "GameFramework/SaveGame.h"
 #include "Kismet/GameplayStatics.h"
@@ -19,9 +20,17 @@ UFineSaveGameComponent::UFineSaveGameComponent(): Super()
 void UFineSaveGameComponent::ResetProgress()
 {
 	// Return if user index is less than zero.
-	if (UserIndex < 0) return;
+	if (UserIndex < 0)
+	{
+		FB_WARNING("User index is less than zero.");
+		return;
+	}
 	// Return if slot is empty.
-	if (Slot.IsEmpty()) return;
+	if (Slot.IsEmpty())
+	{
+		FB_WARNING("Slot is empty");
+		return;
+	}
 	OnSaveGameWillBeLoaded.Broadcast();
 	// if save game exists on file, delete it.
 	if (UGameplayStatics::DoesSaveGameExist(Slot, UserIndex))
@@ -43,9 +52,17 @@ void UFineSaveGameComponent::ResetProgress()
 void UFineSaveGameComponent::LoadProgress()
 {
 	// Return if user index is less than zero.
-	if (UserIndex < 0) return;
+	if (UserIndex < 0)
+	{
+		FB_WARNING("User index is less than zero.");
+		return;
+	}
 	// Return if slot is empty.
-	if (Slot.IsEmpty()) return;
+	if (Slot.IsEmpty())
+	{
+		FB_WARNING("Slot is empty.");
+		return;
+	}
 	// if save game doesn't exit on file, call ResetProgress then return.
 	if (!UGameplayStatics::DoesSaveGameExist(Slot, UserIndex))
 	{
@@ -63,9 +80,17 @@ void UFineSaveGameComponent::LoadProgress()
 void UFineSaveGameComponent::AsyncLoadProgress()
 {
 	// Return if user index is less than zero.
-	if (UserIndex < 0) return;
+	if (UserIndex < 0)
+	{
+		FB_WARNING("User index is less than zero.");
+		return;
+	}
 	// Return if slot is empty.
-	if (Slot.IsEmpty()) return;
+	if (Slot.IsEmpty())
+	{
+		FB_WARNING("Slot is empty.");
+		return;
+	}
 	// Clear the load timer handle.
 	GetWorld()->GetTimerManager().ClearTimer(LoadTimer);
 	const auto Self = TWeakObjectPtr<UFineSaveGameComponent>(this);
@@ -97,9 +122,17 @@ void UFineSaveGameComponent::AsyncLoadProgress()
 void UFineSaveGameComponent::SaveProgress()
 {
 	// Return if user index is less than zero.
-	if (UserIndex < 0) return;
+	if (UserIndex < 0)
+	{
+		FB_WARNING("User index is less than zero.");
+		return;
+	}
 	// Return if slot is empty.
-	if (Slot.IsEmpty()) return;
+	if (Slot.IsEmpty())
+	{
+		FB_WARNING("Slot is empty.");
+		return;
+	}
 	// save game instance if it's valid.
 	if (IsValid(LoadedProgress))
 	{
@@ -112,9 +145,17 @@ void UFineSaveGameComponent::SaveProgress()
 void UFineSaveGameComponent::AsyncSaveProgress()
 {
 	// Return if user index is less than zero.
-	if (UserIndex < 0) return;
+	if (UserIndex < 0)
+	{
+		FB_WARNING("User index is less than zero.");
+		return;
+	}
 	// Return if slot is empty.
-	if (Slot.IsEmpty()) return;
+	if (Slot.IsEmpty())
+	{
+		FB_WARNING("Slot is empty.");
+		return;
+	}
 	// Clear the save timer handle.
 	GetWorld()->GetTimerManager().ClearTimer(SaveTimer);
 	const auto Self = TWeakObjectPtr<UFineSaveGameComponent>(this);

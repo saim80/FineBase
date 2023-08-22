@@ -30,6 +30,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnFlagUpdated OnFlagUpdated;
 
+	FORCEINLINE void SetFlagName(const FName NewName) { FlagName = NewName; }
+	FORCEINLINE const FName& GetFlagName() const { return FlagName; }
+
 protected:
 	/// Called when the flag value is updated.
 	UFUNCTION(BlueprintNativeEvent, meta = (AllowPrivateAccess = true))
@@ -40,5 +43,5 @@ private:
 	int32 Counter;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Flag", meta = (AllowPrivateAccess = true))
-	FName Name;
+	FName FlagName;
 };
