@@ -143,6 +143,7 @@ FFineDatabaseRecord UFineLocalDatabaseComponent::GetRecordByName(const FString E
 	const auto Records = ExecuteQuery(Query, bSuccess);
 	if (Records.IsEmpty())
 	{
+		bSuccess = false;
 		return {};
 	}
 	return Records[0];
