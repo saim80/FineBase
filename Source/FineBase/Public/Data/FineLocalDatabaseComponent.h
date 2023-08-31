@@ -14,6 +14,8 @@ struct FFineCharacterData;
 struct FFineActorData;
 struct FFineDisplayData;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDatabaseConnected);
+
 /**
  * Info actor to prepare the calls to sqlite database on begin play event.
  */
@@ -24,8 +26,8 @@ class FINEBASE_API UFineLocalDatabaseComponent : public UActorComponent
 
 public:
 	// Sets default values for this actor's properties
-	UFineLocalDatabaseComponent();
-	FString GetDatabaseConnectionString() const;
+	UFineLocalDatabaseComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	virtual FString GetDatabaseFilePath() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="FineBase")
 	FFineDatabaseRecord GetRecordByName(const FString Entity, const FName Name, bool& bSuccess);
@@ -36,27 +38,30 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="FineBase")
 	TArray<FFineDatabaseRecord> FilterRecords(const FString& Entity, const FString& WhereClause, bool& bSuccess);
 
-	UFUNCTION(BlueprintCallable, Category="FineBase")
-	bool UpdateRecordByName(const FString& Entity, const FString& Name, const FFineDatabaseRecord& Record);
+	FORCEINLINE void SetDatabasePath(const FString& Path)
+	{
+		DatabasePath = Path;
+		OpenConnection();
+	}
 
-	UFUNCTION(BlueprintCallable, Category="FineBase")
-	bool CreateRecord(const FString& Entity, const FString& Name, const FFineDatabaseRecord& Record);
+	UPROPERTY(BlueprintAssignable)
+	FOnDatabaseConnected OnDatabaseConnected;
 
-	UFUNCTION(BlueprintCallable, Category="FineBase")
-	bool DeleteRecordByName(const FString& Entity, const FString& Name);
-
-	UFUNCTION(BlueprintCallable, Category="FineBase")
-	bool DeleteRecords(const FString& Entity, const FString& WhereClause);
+	UFUNCTION(BlueprintCallable)
+	virtual bool OpenConnection();
+	UFUNCTION(BlueprintCallable)
+	virtual void CloseConnection();
 
 protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-private:
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "FineBase", meta = (AllowPrivateAccess = "true"))
-	FString DatabasePath;
 	TSharedPtr<FSQLiteDatabaseConnection> Connection;
 
-	bool OpenConnection();
-	void CloseConnection();
+	FORCEINLINE const FString& GetDatabaseAssetPath() const { return DatabasePath; }
 	TArray<FFineDatabaseRecord> ExecuteQuery(const FString& Query, bool& bSuccess);
+
+private:
+	/// The location of database to connect.
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "FineBase", meta = (AllowPrivateAccess = "true"))
+	FString DatabasePath;
 };

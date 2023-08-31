@@ -17,7 +17,7 @@ UFineSaveGameComponent::UFineSaveGameComponent(): Super()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-void UFineSaveGameComponent::ResetProgress()
+void UFineSaveGameComponent::ResetProgress_Implementation()
 {
 	// Return if user index is less than zero.
 	if (UserIndex < 0)
@@ -29,6 +29,11 @@ void UFineSaveGameComponent::ResetProgress()
 	if (Slot.IsEmpty())
 	{
 		FB_WARNING("Slot is empty");
+		return;
+	}
+	if (!IsValid(SaveGameClass))
+	{
+		FB_WARNING("No save game class set.")
 		return;
 	}
 	OnSaveGameWillBeLoaded.Broadcast();
@@ -89,6 +94,11 @@ void UFineSaveGameComponent::AsyncLoadProgress()
 	if (Slot.IsEmpty())
 	{
 		FB_WARNING("Slot is empty.");
+		return;
+	}
+	if (!IsValid(GetWorld()))
+	{
+		FB_WARNING("No world object found. Maybe game didn't start yet.")
 		return;
 	}
 	// Clear the load timer handle.

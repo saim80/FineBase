@@ -26,4 +26,15 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="FineBase")
 	static double GetTimeSecondsSince1970(const FDateTime& DateTime);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="FineBase")
+	static FString GetFilePathFromAssetPath(const FString& Directory, const FString& AssetPath);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="FineBase")
+	static FString GetSaveGamePath(const FString& SaveGameName);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="FineBase")
+	static FString GetDatabaseFileName(const FString& SlotName, const int32& UserIndex);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="FineBase")
+	static void DeletePlayerData(const FString& SlotName, const int32& UserIndex);
 };

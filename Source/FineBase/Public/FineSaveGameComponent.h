@@ -35,7 +35,7 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnSaveGameSaved OnSaveGameSaved;
 
-	UFUNCTION(BlueprintCallable, CallInEditor, Category="FineBase")
+	UFUNCTION(BlueprintCallable, CallInEditor, BlueprintNativeEvent, Category="FineBase")
 	void ResetProgress();
 	UFUNCTION(BlueprintCallable, Category="FineBase")
 	void LoadProgress();
@@ -55,6 +55,7 @@ public:
 	bool IsLoaded();
 
 	FORCEINLINE const int32& GetUserIndex() const { return UserIndex; }
+	FORCEINLINE const FString& GetSlot() const { return Slot; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -63,7 +64,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category="FineBase", meta=(AllowPrivateAccess="true"))
 	USaveGame* LoadedProgress;
 
-private:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="FineBase", meta=(AllowPrivateAccess="true"))
 	FString Slot;
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="FineBase", meta=(AllowPrivateAccess="true"))
@@ -71,6 +71,7 @@ private:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="FineBase", meta=(AllowPrivateAccess="true"))
 	TSubclassOf<USaveGame> SaveGameClass;
 
+private:
 	FTimerHandle LoadTimer;
 	FTimerHandle SaveTimer;
 };
