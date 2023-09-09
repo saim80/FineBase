@@ -37,4 +37,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="FineBase")
 	static void DeletePlayerData(const FString& SlotName, const int32& UserIndex);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="FineBase")
+	static FString GetProjectVersionString();
+	
 };

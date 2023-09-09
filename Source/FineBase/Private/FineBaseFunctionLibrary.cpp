@@ -58,3 +58,12 @@ void UFineBaseFunctionLibrary::DeletePlayerData(const FString& SlotName, const i
 		File.DeleteFile(*DatabasePath);
 	}
 }
+
+FString UFineBaseFunctionLibrary::GetProjectVersionString()
+{
+	// Get the project version string from config.
+	FString ProjectVersionString;
+	GConfig->GetString(
+		TEXT("/Script/EngineSettings.GeneralProjectSettings"), TEXT("ProjectVersion"), ProjectVersionString, GGameIni);
+	return ProjectVersionString;
+}
