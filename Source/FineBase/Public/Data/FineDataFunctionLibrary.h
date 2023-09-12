@@ -8,7 +8,6 @@
 
 class UFineLocalDatabaseComponent;
 struct FFineDisplayData;
-struct FFineActorData;
 /**
  * 
  */

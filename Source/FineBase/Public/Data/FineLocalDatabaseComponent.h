@@ -10,8 +10,6 @@ class FSQLiteResultSet;
 class FDataBaseRecordSet;
 class FSQLiteDatabaseConnection;
 struct FFineDatabaseRecord;
-struct FFineCharacterData;
-struct FFineActorData;
 struct FFineDisplayData;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDatabaseConnected);
@@ -52,13 +50,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void CloseConnection();
 
+	UFUNCTION(BlueprintCallable)
+	TArray<FFineDatabaseRecord> ExecuteQuery(const FString& Query, bool& bSuccess);
+
 protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	TSharedPtr<FSQLiteDatabaseConnection> Connection;
 
 	FORCEINLINE const FString& GetDatabaseAssetPath() const { return DatabasePath; }
-	TArray<FFineDatabaseRecord> ExecuteQuery(const FString& Query, bool& bSuccess);
 
 private:
 	/// The location of database to connect.

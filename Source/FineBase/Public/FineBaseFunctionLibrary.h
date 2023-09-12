@@ -8,8 +8,6 @@
 
 class FSQLiteResultSet;
 class FSQLiteDatabaseConnection;
-struct FFineCharacterData;
-struct FFineActorData;
 struct FFineDisplayData;
 /**
  * 
